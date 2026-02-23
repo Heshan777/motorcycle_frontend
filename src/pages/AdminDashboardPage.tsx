@@ -104,7 +104,7 @@ export function AdminDashboardPage() {
       <div className="flex flex-wrap gap-3">
         <Link
           to="/admin/motorcycles"
-          className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+          className="rounded-full bg-yellow-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
         >
           Manage Motorcycles
         </Link>
