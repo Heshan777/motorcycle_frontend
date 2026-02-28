@@ -21,6 +21,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ComparisonPage } from './pages/ComparisonPage';
 import { FAQPage } from './pages/FAQPage';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <WishlistProvider>
           <FeedbackProvider>
           <BrowserRouter>
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
             <Routes>
               <Route element={<Layout />}>
                 <Route index element={<HomePage />} />
@@ -57,6 +59,7 @@ function App() {
               </Route>
             </Routes>
             <ToastContainer />
+            </GoogleOAuthProvider>
           </BrowserRouter>
         </FeedbackProvider>
         </WishlistProvider>
