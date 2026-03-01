@@ -9,6 +9,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>;
   register: (name: string, email: string, password: string, phone?: string) => Promise<void>;
   logout: () => void;
   refreshMe: () => Promise<void>;
@@ -77,6 +78,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const loginWithGoogle = async (credential: string) => {
+    try {
+      const response = await api.post<{ success: boolean; token: string; user: User }>('/auth/google', {
+        credential,
+      });
+      persistToken(response.data.token);
+      setUser(response.data.user);
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  };
+
   const register = async (name: string, email: string, password: string, phone?: string) => {
     try {
       const response = await api.post<{ success: boolean; token: string; user: User }>('/auth/register', {
@@ -105,6 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: Boolean(user && token),
       isAdmin: user?.role === 'admin',
       login,
+      loginWithGoogle,
       register,
       logout,
       refreshMe,

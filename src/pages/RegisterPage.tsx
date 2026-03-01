@@ -2,10 +2,11 @@ import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 
 export function RegisterPage() {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState('');
@@ -48,6 +49,17 @@ export function RegisterPage() {
       setError(registerError instanceof Error ? registerError.message : 'Registration failed');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (response: { credential?: string }) => {
+    if (!response.credential) return;
+    try {
+      setError('');
+      await loginWithGoogle(response.credential);
+      navigate('/');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google sign-in failed');
     }
   };
 
@@ -155,6 +167,23 @@ export function RegisterPage() {
             {error}
           </p>
         )}
+
+        <div className="my-4 flex items-center gap-3">
+          <div className="h-px flex-1 bg-slate-200" />
+          <span className="text-xs font-medium text-slate-400">or</span>
+          <div className="h-px flex-1 bg-slate-200" />
+        </div>
+
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google sign-in failed. Please try again.')}
+            theme="outline"
+            shape="pill"
+            text="signup_with"
+            logo_alignment="center"
+          />
+        </div>
 
         <p className="mt-5 text-sm text-slate-600">
           Already registered?{' '}

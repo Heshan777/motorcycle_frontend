@@ -2,10 +2,11 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -22,6 +23,17 @@ export function LoginPage() {
       setError(loginError instanceof Error ? loginError.message : 'Login failed');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (response: { credential?: string }) => {
+    if (!response.credential) return;
+    try {
+      setError('');
+      await loginWithGoogle(response.credential);
+      navigate('/');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google sign-in failed');
     }
   };
 
@@ -69,7 +81,25 @@ export function LoginPage() {
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
-        {error && <p className="mt-3 text-red-600">{error}</p>}
+
+        <div className="my-4 flex items-center gap-3">
+          <div className="h-px flex-1 bg-slate-200" />
+          <span className="text-xs font-medium text-slate-400">or</span>
+          <div className="h-px flex-1 bg-slate-200" />
+        </div>
+
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google sign-in failed. Please try again.')}
+            theme="outline"
+            shape="pill"
+            text="signin_with"
+            logo_alignment="center"
+          />
+        </div>
+
+        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
         <p className="mt-4 text-sm text-slate-600">
           No account? <Link className="font-semibold text-slate-900" to="/register">Create one</Link>
         </p>
